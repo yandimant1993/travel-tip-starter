@@ -30,7 +30,8 @@ export const locService = {
     save,
     setFilterBy,
     setSortBy,
-    getLocCountByRateMap
+    getLocCountByRateMap,
+    getLocCountByUpdatedMap,
 }
 
 function query() {
@@ -99,6 +100,33 @@ function getLocCountByRateMap() {
             }, { high: 0, medium: 0, low: 0 })
             locCountByRateMap.total = locs.length
             return locCountByRateMap
+        })
+}
+
+function getLocCountByUpdatedMap() {
+    return storageService.query(DB_KEY)
+        .then(locs => {
+            const now = Date.now()
+            const ONE_DAY = 1000 * 60 * 60 * 24
+
+            const map = {
+                today: 0,
+                past: 0,
+                never: 0,
+                total: locs.length
+            }
+
+            locs.forEach(loc => {
+                if (!loc.updatedAt) {
+                    map.never++
+                } else if (now - loc.updatedAt < ONE_DAY) {
+                    map.today++
+                } else {
+                    map.past++
+                }
+            })
+
+            return map
         })
 }
 
