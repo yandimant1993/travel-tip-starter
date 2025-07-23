@@ -4,6 +4,8 @@ import { mapService } from './services/map.service.js'
 
 window.onload = onInit
 
+var gUserPos
+
 var gUserPos 
 
 // To make things easier in this project structure 
@@ -132,6 +134,7 @@ function onPanToUserPos() {
     mapService.getUserPosition()
         .then(latLng => {
             mapService.panTo({ ...latLng, zoom: 15 })
+            gUserPos = latLng
             unDisplayLoc()
             loadAndRenderLocs()
             console.log(`You are at Latitude: ${latLng.lat} Longitude: ${latLng.lng}`)
