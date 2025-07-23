@@ -69,15 +69,13 @@ function renderLocs(locs) {
 }
 
 function onRemoveLoc(locId) {
+    const isRemoved = confirm('are you sure you want to delete it?')
+    if (!isRemoved) return
     locService.remove(locId)
         .then(() => {
-            const isRemoved = confirm('are you sure you want to delete it?')
-            if (isRemoved) {
-                flashMsg('Location removed')
-                unDisplayLoc()
-                loadAndRenderLocs()
-            }
-            else return
+            flashMsg('Location removed')
+            unDisplayLoc()
+            loadAndRenderLocs()
         })
         .catch(err => {
             console.error('OOPs:', err)
