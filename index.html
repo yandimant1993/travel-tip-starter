@@ -19,7 +19,7 @@
             <input name="loc-copier" />
         </section>
         <form class="form-search" onsubmit="app.onSearchAddress(event)">
-            <input type="text" name="address" placeholder="Search address"/>
+            <input type="text" name="address" placeholder="Search address" />
             <button title="Search">🔍</button>
             <button type="button" title="My Position" onclick="app.onPanToUserPos()" class="btn-user-pos">&nbsp;
             </button>
@@ -76,6 +76,26 @@
     </main>
     <pre class="debug" hidden></pre>
     <div class="user-msg"></div>
+
+    <dialog class="location-dialog">
+        <form class="location-form" method="dialog">
+            <h3 class="dialog-title">Add Location</h3>
+            <label>
+                Name:
+                <input type="text" class="location-name" required />
+            </label>
+            <label>
+                Rate:
+                <input type="number" class="location-rate" min="1" max="5" required />
+            </label>
+            <menu>
+                <button value="cancel" type="reset">Cancel</button>
+                <button value="confirm" type="submit">Save</button>
+            </menu>
+        </form>
+    </dialog>
+
+
     <script type="module" src="js/app.controller.js"></script>
 </body>
 

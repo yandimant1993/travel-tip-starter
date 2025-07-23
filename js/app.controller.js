@@ -98,24 +98,84 @@ function onSearchAddress(ev) {
         })
 }
 
+// === שונה: onAddLoc עם דיאלוג במקום prompt ===
 function onAddLoc(geo) {
-    const locName = prompt('Loc name', geo.address || 'Just a place')
-    if (!locName) return
+    const dialog = document.querySelector('.location-dialog')
+    const form = dialog.querySelector('.location-form')
+    const nameInput = form.querySelector('.location-name')
+    const rateInput = form.querySelector('.location-rate')
 
-    const loc = {
-        name: locName,
-        rate: +prompt(`Rate (1-5)`, '3'),
-        geo
+    // איפוס ערכים
+    nameInput.value = ''
+    rateInput.value = 3
+
+    dialog.showModal()
+
+    form.onsubmit = ev => {
+        ev.preventDefault()
+        const name = nameInput.value.trim()
+        const rate = +rateInput.value
+        if (!name) return alert('Name is required')
+        if (rate < 1 || rate > 5) return alert('Rate must be between 1 and 5')
+
+        const loc = {
+            name,
+            rate,
+            geo
+        }
+
+        locService.save(loc)
+            .then(savedLoc => {
+                flashMsg(`Added Location (id: ${savedLoc.id})`)
+                utilService.updateQueryParams({ locId: savedLoc.id })
+                loadAndRenderLocs()
+                dialog.close()
+            })
+            .catch(() => {
+                alert('Cannot add location')
+            })
     }
-    locService.save(loc)
-        .then((savedLoc) => {
-            flashMsg(`Added Location (id: ${savedLoc.id})`)
-            utilService.updateQueryParams({ locId: savedLoc.id })
-            loadAndRenderLocs()
-        })
-        .catch(err => {
-            console.error('OOPs:', err)
-            flashMsg('Cannot add location')
+
+    form.onreset = () => dialog.close()
+}
+
+// === שונה: onUpdateLoc עם דיאלוג במקום prompt ===
+function onUpdateLoc(locId) {
+    locService.getById(locId)
+        .then(loc => {
+            const dialog = document.querySelector('.location-dialog')
+            const form = dialog.querySelector('.location-form')
+            const nameInput = form.querySelector('.location-name')
+            const rateInput = form.querySelector('.location-rate')
+
+            // מלא שדות בטופס
+            nameInput.value = loc.name
+            rateInput.value = loc.rate
+
+            dialog.showModal()
+
+            form.onsubmit = ev => {
+                ev.preventDefault()
+                const name = nameInput.value.trim()
+                const rate = +rateInput.value
+                if (!name) return alert('Name is required')
+                if (rate < 1 || rate > 5) return alert('Rate must be between 1 and 5')
+
+                loc.name = name
+                loc.rate = rate
+
+                locService.save(loc)
+                    .then(() => {
+                        flashMsg(`Rate was set to: ${loc.rate}`)
+                        loadAndRenderLocs()
+                        dialog.close()
+                    })
+                    .catch(() => {
+                        alert('Cannot update location')
+                    })
+            }
+
+            form.onreset = () => dialog.close()
         })
 }
 
@@ -141,26 +201,6 @@ function onPanToUserPos() {
         .catch(err => {
             console.error('OOPs:', err)
             flashMsg('Cannot get your position')
-        })
-}
-
-function onUpdateLoc(locId) {
-    locService.getById(locId)
-        .then(loc => {
-            const rate = prompt('New rate?', loc.rate)
-            if (rate && rate !== loc.rate) {
-                loc.rate = rate
-                locService.save(loc)
-                    .then(savedLoc => {
-                        flashMsg(`Rate was set to: ${savedLoc.rate}`)
-                        loadAndRenderLocs()
-                    })
-                    .catch(err => {
-                        console.error('OOPs:', err)
-                        flashMsg('Cannot update location')
-                    })
-
-            }
         })
 }
 
@@ -250,11 +290,6 @@ function onSetSortBy() {
     const sortBy = {}
     sortBy[prop] = (isDesc) ? -1 : 1
 
-    // Shorter Syntax:
-    // const sortBy = {
-    //     [prop] : (isDesc)? -1 : 1
-    // }
-
     locService.setSortBy(sortBy)
     loadAndRenderLocs()
 }
@@ -278,8 +313,6 @@ function renderLocStats() {
 }
 
 function handleStats(stats, selector) {
-    // stats = { low: 37, medium: 11, high: 100, total: 148 }
-    // stats = { low: 5, medium: 5, high: 5, baba: 55, mama: 30, total: 100 }
     const labels = cleanStats(stats)
     const colors = utilService.getColors()
 
@@ -297,8 +330,6 @@ function handleStats(stats, selector) {
     })
 
     colorsStr += `${colors[labels.length - 1]} ${100}%`
-    // Example:
-    // colorsStr = `purple 0%, purple 33%, blue 33%, blue 67%, red 67%, red 100%`
 
     const elPie = document.querySelector(`.${selector} .pie`)
     const style = `background-image: conic-gradient(${colorsStr})`
