@@ -268,8 +268,14 @@ function onSetFilterBy({ txt, minRate }) {
 }
 
 function renderLocStats() {
+    // Pie לפי דירוגים
     locService.getLocCountByRateMap().then(stats => {
         handleStats(stats, 'loc-stats-rate')
+    })
+
+    // Pie לפי זמן עדכון
+    locService.getLocCountByUpdatedMap().then(stats => {
+        handleStats(stats, 'loc-stats-updated')
     })
 }
 
