@@ -77,6 +77,7 @@ function onRemoveLoc(locId) {
                 unDisplayLoc()
                 loadAndRenderLocs()
             }
+            else return
         })
         .catch(err => {
             console.error('OOPs:', err)
