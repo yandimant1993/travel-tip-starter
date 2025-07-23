@@ -4,6 +4,9 @@ import { mapService } from './services/map.service.js'
 
 window.onload = onInit
 
+var gUserPos = getUserPosition()
+console.log(gUserPos)
+
 // To make things easier in this project structure 
 // functions that are called from DOM are defined on a global app object
 window.app = {
